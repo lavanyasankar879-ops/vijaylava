@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Vijay & Lavanya Scratch Card</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f8dfe5;
+      font-family: Georgia, serif;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #8d3150;
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1.6;
+      overflow: hidden;
+      border-radius: 20px;
+    }
+
+    /* Hidden message */
+    .message {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #fff8f0;
+      color: #8d3150;
+      padding: 20px;
+    }
+
+    .message h2 {
+      font-size: 30px;
+    }
+
+    .message p {
+      font-size: 18px;
+    }
+
+    /* Scratch layer */
+    #scratchCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>Vijay & Lavanya 💖</h1>
+
+  <div class="card">
+
+    <div class="message">
+      <h2>Surprise! ❤️</h2>
+      <p>
+        Thank you for being part of our special day!
+      </p>
+    </div>
+
+    <canvas id="scratchCanvas"></canvas>
+
+  </div>
+
+  <p>✨ Scratch with your finger ✨</p>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("scratchCanvas");
+const ctx = canvas.getContext("2d");
+
+function setupCanvas() {
+
+  const rect = canvas.getBoundingClientRect();
+
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+
+  /* Gold scratch coating */
+  const gradient = ctx.createLinearGradient(
+    0, 0, canvas.width, canvas.height
+  );
+
+  gradient.addColorStop(0, "#b98b4d");
+  gradient.addColorStop(0.5, "#f2dfae");
+  gradient.addColorStop(1, "#b98b4d");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  /* Text on scratch layer */
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 24px Arial";
+  ctx.textAlign = "center";
+
+  ctx.fillText(
+    "SCRATCH ME 💖",
+    canvas.width / 2,
+    canvas.height / 2
+  );
+}
+
+setupCanvas();
+
+
+let scratching = false;
+
+
+function getPosition(event) {
+
+  const rect = canvas.getBoundingClientRect();
+
+  let x, y;
+
+  if (event.touches) {
+
+    x = event.touches[0].clientX - rect.left;
+    y = event.touches[0].clientY - rect.top;
+
+  } else {
+
+    x = event.clientX - rect.left;
+    y = event.clientY - rect.top;
+
+  }
+
+  return { x, y };
+}
+
+
+function scratch(event) {
+
+  if (!scratching) return;
+
+  event.preventDefault();
+
+  const position = getPosition(event);
+
+  ctx.globalCompositeOperation = "destination-out";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    position.x,
+    position.y,
+    25,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fill();
+}
+
+
+/* Mouse */
+
+canvas.addEventListener("mousedown", function(event) {
+
+  scratching = true;
+  scratch(event);
+
+});
+
+canvas.addEventListener("mousemove", scratch);
+
+window.addEventListener("mouseup", function() {
+
+  scratching = false;
+
+});
+
+
+/* Mobile touch */
+
+canvas.addEventListener("touchstart", function(event) {
+
+  scratching = true;
+  scratch(event);
+
+}, { passive: false });
+
+
+canvas.addEventListener("touchmove", scratch, {
+  passive: false
+});
+
+
+canvas.addEventListener("touchend", function() {
+
+  scratching = false;
+
+});
